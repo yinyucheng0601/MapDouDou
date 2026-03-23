@@ -96,13 +96,6 @@ button:hover {
   line-height: 1.6;
 }
 
-.hero-stats {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(140px, 1fr));
-  gap: 14px;
-}
-
-.stat-card,
 .summary-card {
   padding: 16px 18px;
   border-radius: var(--radius-lg);
@@ -111,7 +104,6 @@ button:hover {
   backdrop-filter: blur(10px);
 }
 
-.stat-card span,
 .summary-card span {
   display: block;
   color: var(--muted);
@@ -119,7 +111,6 @@ button:hover {
   margin-bottom: 4px;
 }
 
-.stat-card strong,
 .summary-card strong {
   font-size: 1.1rem;
 }
@@ -274,11 +265,6 @@ button:hover {
   accent-color: var(--accent);
 }
 
-.summary-strip {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
 
 .preview-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -375,6 +361,25 @@ canvas {
   line-height: 1.7;
 }
 
+/* Sheet scroll body: pass-through on desktop so sections behave as direct grid children */
+.sheet-scroll-body {
+  display: contents;
+}
+
+/* Sheet chrome: hidden on desktop */
+.sheet-handle {
+  display: none;
+}
+
+/* Mobile-only elements */
+.mobile-upload-hero {
+  display: none;
+}
+
+.mobile-reupload-btn {
+  display: none;
+}
+
 /* Desktop: sticky left panel */
 @media (min-width: 768px) {
   .control-panel {
@@ -390,7 +395,7 @@ canvas {
   }
 }
 
-/* Mobile: reorder sections + collapse inner grids */
+/* Mobile: bottom sheet + upload hero */
 @media (max-width: 767px) {
   .page-shell {
     width: min(100vw - 22px, 100%);
@@ -402,29 +407,136 @@ canvas {
     align-items: flex-start;
   }
 
-  .hero-stats {
-    width: 100%;
-    grid-template-columns: repeat(2, 1fr);
+  /* Mobile upload hero: always visible */
+  .mobile-upload-hero {
+    display: block;
+    margin-bottom: 18px;
   }
 
-  /* Flatten control-panel so its children can be ordered against .workspace */
-  .app-grid {
+  .mobile-dropzone {
+    min-height: 176px;
+    padding: 18px 20px;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: var(--radius-xl);
   }
 
-  .control-panel {
-    display: contents;
+  .upload-icon {
+    color: var(--accent);
+    opacity: 0.65;
   }
 
-  .section-upload { order: 1; }
-  .section-params  { order: 2; }
-  .workspace       { order: 3; }
-  .section-export  { order: 4; }
+  /* App grid: single block, control-panel is out of flow (fixed) */
+  .app-grid {
+    display: block;
+  }
 
+  /* Workspace always visible on mobile */
+  .workspace {
+    display: grid;
+    padding-bottom: 120px;
+  }
+
+  /* Desktop-only width field hidden on mobile (sheet handle has its own) */
+  .desktop-width-field {
+    display: none;
+  }
+
+  /* Upload section hidden in sheet (mobile-upload-hero handles upload) */
+  .section-upload {
+    display: none;
+  }
+
+  /* Inner grids collapse to single column */
   .palette-layout,
-  .preview-grid,
-  .summary-strip {
+  .preview-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* === Bottom Sheet === */
+  .control-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    /* override shared display: grid */
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 250, 242, 0.96);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px 24px 0 0;
+    border-top: 1px solid rgba(95, 80, 165, 0.14);
+    box-shadow: 0 -8px 40px rgba(53, 33, 95, 0.18);
+    height: 96px;
+    overflow: hidden;
+    transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .control-panel.is-expanded {
+    height: 65vh;
+  }
+
+  /* Sheet handle */
+  .sheet-handle {
+    display: block;
+    flex-shrink: 0;
+    padding: 10px 20px 12px;
+  }
+
+  .sheet-drag-bar {
+    width: 36px;
+    height: 4px;
+    background: rgba(95, 80, 165, 0.2);
+    border-radius: 999px;
+    margin: 0 auto 10px;
+  }
+
+  .sheet-handle-inner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .sheet-width-field {
+    flex: 1;
+    margin-top: 0;
+    gap: 6px;
+  }
+
+  .sheet-toggle-btn {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(95, 80, 165, 0.1);
+    color: var(--accent-deep);
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: transform 0.35s ease;
+  }
+
+  .control-panel.is-expanded .sheet-toggle-btn {
+    transform: rotate(180deg);
+  }
+
+  /* Sheet scroll body */
+  .sheet-scroll-body {
+    display: grid;
+    gap: 16px;
+    align-content: start;
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px 16px 40px;
   }
 }

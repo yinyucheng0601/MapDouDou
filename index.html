@@ -16,124 +16,130 @@
             上传图案，自动裁切背景、压缩颜色、生成拼豆图纸，并把宽度控制在 24 到 96 颗豆子之间。
           </p>
         </div>
-        <div class="hero-stats">
-          <div class="stat-card">
-            <span>目标宽度</span>
-            <strong id="heroWidth">40 颗</strong>
-          </div>
-          <div class="stat-card">
-            <span>推荐底板</span>
-            <strong>29 x 29</strong>
-          </div>
-        </div>
       </header>
 
+      <!-- Mobile upload card: shown on mobile before image is loaded -->
+      <section class="mobile-upload-hero">
+        <label class="dropzone mobile-dropzone" for="imageInput">
+          <svg class="upload-icon" width="36" height="36" viewBox="0 0 36 36" fill="none">
+            <path d="M18 24V12M11 19l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7 29h22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>点击上传图片</span>
+          <small>支持 PNG、JPG、WebP。像素图或纯色插画效果最好。</small>
+        </label>
+      </section>
+
       <main class="app-grid">
-        <aside class="control-panel">
-          <section class="panel-card section-upload">
-            <h2>输入</h2>
-            <label class="dropzone" for="imageInput">
-              <input id="imageInput" type="file" accept="image/*" />
-              <span>点击上传图片</span>
-              <small>支持 PNG、JPG、WebP。像素图或纯色插画效果最好。</small>
-            </label>
-            <div class="button-row">
-              <button id="loadDemoButton" type="button" class="ghost-button">加载示例魔法帽图</button>
+        <aside class="control-panel" id="controlPanel">
+
+          <!-- Mobile bottom sheet handle (hidden on desktop) -->
+          <div class="sheet-handle" id="sheetHandle">
+            <div class="sheet-drag-bar"></div>
+            <div class="sheet-handle-inner">
+              <label class="field sheet-width-field">
+                <div class="field-header">
+                  <span>图纸宽度</span>
+                  <strong id="sheetWidthDisplay">44 颗</strong>
+                </div>
+                <input id="sheetWidthInput" type="range" min="24" max="96" step="1" value="44" />
+              </label>
+              <button class="sheet-toggle-btn" id="sheetToggle" type="button" aria-label="展开配置">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M5 12.5L10 7.5L15 12.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
             </div>
-          </section>
+          </div>
 
-          <section class="panel-card section-params">
-            <h2>图纸参数</h2>
+          <div class="sheet-scroll-body">
+            <section class="panel-card section-upload">
+              <h2>输入</h2>
+              <label class="dropzone" for="imageInput">
+                <input id="imageInput" type="file" accept="image/*" />
+                <span>点击上传图片</span>
+                <small>支持 PNG、JPG、WebP。像素图或纯色插画效果最好。</small>
+              </label>
+            </section>
 
-            <label class="field">
-              <div class="field-header">
-                <span>图纸宽度</span>
-                <strong id="widthValue">44 颗</strong>
+            <section class="panel-card section-params">
+              <h2>图纸参数</h2>
+
+              <label class="field desktop-width-field">
+                <div class="field-header">
+                  <span>图纸宽度</span>
+                  <strong id="widthValue">44 颗</strong>
+                </div>
+                <input id="widthInput" type="range" min="24" max="96" step="1" value="44" />
+              </label>
+
+              <div class="preset-row" id="widthPresets">
+                <button type="button" class="preset-button" data-width="29">29</button>
+                <button type="button" class="preset-button" data-width="40">40</button>
+                <button type="button" class="preset-button is-active" data-width="44">44</button>
+                <button type="button" class="preset-button" data-width="48">48</button>
+                <button type="button" class="preset-button" data-width="58">58</button>
+                <button type="button" class="preset-button" data-width="72">72</button>
+                <button type="button" class="preset-button" data-width="87">87</button>
               </div>
-              <input id="widthInput" type="range" min="24" max="96" step="1" value="44" />
-            </label>
 
-            <div class="preset-row" id="widthPresets">
-              <button type="button" class="preset-button" data-width="29">29</button>
-              <button type="button" class="preset-button" data-width="40">40</button>
-              <button type="button" class="preset-button is-active" data-width="44">44</button>
-              <button type="button" class="preset-button" data-width="48">48</button>
-              <button type="button" class="preset-button" data-width="58">58</button>
-              <button type="button" class="preset-button" data-width="72">72</button>
-              <button type="button" class="preset-button" data-width="87">87</button>
-            </div>
+              <label class="field">
+                <div class="field-header">
+                  <span>最大颜色数</span>
+                  <strong id="colorValue">6 色</strong>
+                </div>
+                <input id="colorInput" type="range" min="3" max="12" step="1" value="6" />
+              </label>
 
-            <label class="field">
-              <div class="field-header">
-                <span>最大颜色数</span>
-                <strong id="colorValue">6 色</strong>
+              <label class="field">
+                <div class="field-header">
+                  <span>颜色策略</span>
+                </div>
+                <select id="paletteMode">
+                  <option value="starter">内置拼豆色板近似</option>
+                  <option value="auto">保留图片主色</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <div class="field-header">
+                  <span>背景处理</span>
+                </div>
+                <select id="backgroundMode">
+                  <option value="auto">自动识别边缘背景</option>
+                  <option value="keep">保留整张图</option>
+                </select>
+              </label>
+
+              <label class="field inline-toggle">
+                <span>在图纸里显示符号</span>
+                <input id="symbolToggle" type="checkbox" checked />
+              </label>
+            </section>
+
+            <section class="panel-card section-export">
+              <h2>导出</h2>
+              <div class="button-stack">
+                <button id="exportSheetButton" type="button">导出图纸 PNG</button>
+                <button id="exportPreviewButton" type="button" class="ghost-button">导出圆珠预览 PNG</button>
+                <button id="exportCsvButton" type="button" class="ghost-button">导出符号矩阵 CSV</button>
               </div>
-              <input id="colorInput" type="range" min="3" max="12" step="1" value="6" />
-            </label>
-
-            <label class="field">
-              <div class="field-header">
-                <span>颜色策略</span>
-              </div>
-              <select id="paletteMode">
-                <option value="starter">内置拼豆色板近似</option>
-                <option value="auto">保留图片主色</option>
-              </select>
-            </label>
-
-            <label class="field">
-              <div class="field-header">
-                <span>背景处理</span>
-              </div>
-              <select id="backgroundMode">
-                <option value="auto">自动识别边缘背景</option>
-                <option value="keep">保留整张图</option>
-              </select>
-            </label>
-
-            <label class="field inline-toggle">
-              <span>在图纸里显示符号</span>
-              <input id="symbolToggle" type="checkbox" checked />
-            </label>
-          </section>
-
-          <section class="panel-card section-export">
-            <h2>导出</h2>
-            <div class="button-stack">
-              <button id="exportSheetButton" type="button">导出图纸 PNG</button>
-              <button id="exportPreviewButton" type="button" class="ghost-button">导出圆珠预览 PNG</button>
-              <button id="exportCsvButton" type="button" class="ghost-button">导出符号矩阵 CSV</button>
-            </div>
-            <p class="hint">
-              图纸 PNG 适合打印或放在透明底板下照着摆；CSV 方便继续二次处理。
-            </p>
-          </section>
+              <p class="hint">
+                图纸 PNG 适合打印或放在透明底板下照着摆；CSV 方便继续二次处理。
+              </p>
+            </section>
+          </div>
         </aside>
 
         <section class="workspace">
-          <section class="summary-strip">
-            <article class="summary-card">
-              <span>成品尺寸</span>
-              <strong id="patternSize">-</strong>
-            </article>
-            <article class="summary-card">
-              <span>总豆数</span>
-              <strong id="beadCount">-</strong>
-            </article>
-            <article class="summary-card">
-              <span>底板估算</span>
-              <strong id="boardCount">-</strong>
-            </article>
-          </section>
-
           <section class="preview-grid">
-            <article class="canvas-card">
+            <article class="canvas-card wide-card">
               <div class="card-header">
-                <h2>源图</h2>
-                <span id="sourceMeta">未加载</span>
+                <h2>拼豆图纸</h2>
+                <span id="sheetMeta">-</span>
               </div>
-              <div class="source-frame">
-                <img id="sourcePreview" alt="source preview" />
+              <div class="canvas-frame sheet-frame">
+                <canvas id="sheetCanvas"></canvas>
               </div>
             </article>
 
@@ -147,13 +153,13 @@
               </div>
             </article>
 
-            <article class="canvas-card wide-card">
+            <article class="canvas-card">
               <div class="card-header">
-                <h2>拼豆图纸</h2>
-                <span id="sheetMeta">-</span>
+                <h2>源图</h2>
+                <span id="sourceMeta">未加载</span>
               </div>
-              <div class="canvas-frame sheet-frame">
-                <canvas id="sheetCanvas"></canvas>
+              <div class="source-frame">
+                <img id="sourcePreview" alt="source preview" />
               </div>
             </article>
           </section>
@@ -170,8 +176,8 @@
             <article class="panel-card notes-card">
               <h2>使用建议</h2>
               <ul class="notes-list">
-                <li>如果你的原图本身就是像素图，优先选“保留图片主色”。</li>
-                <li>如果你要更接近真实拼豆成品，优先选“内置拼豆色板近似”。</li>
+                <li>如果你的原图本身就是像素图，优先选"保留图片主色"。</li>
+                <li>如果你要更接近真实拼豆成品，优先选"内置拼豆色板近似"。</li>
                 <li>眼睛、描边这类黑色细节，自动背景识别会尽量保留内部黑块。</li>
                 <li>36 到 44 颗宽度通常适合做一张中等尺寸挂件或小摆件。</li>
               </ul>

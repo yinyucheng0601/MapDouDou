@@ -12,11 +12,9 @@ const state = {
 
 const elements = {
   imageInput: document.getElementById("imageInput"),
-  loadDemoButton: document.getElementById("loadDemoButton"),
   widthInput: document.getElementById("widthInput"),
   widthPresets: document.getElementById("widthPresets"),
   widthValue: document.getElementById("widthValue"),
-  heroWidth: document.getElementById("heroWidth"),
   colorInput: document.getElementById("colorInput"),
   colorValue: document.getElementById("colorValue"),
   paletteMode: document.getElementById("paletteMode"),
@@ -31,11 +29,12 @@ const elements = {
   previewMeta: document.getElementById("previewMeta"),
   sheetCanvas: document.getElementById("sheetCanvas"),
   sheetMeta: document.getElementById("sheetMeta"),
-  patternSize: document.getElementById("patternSize"),
-  beadCount: document.getElementById("beadCount"),
-  boardCount: document.getElementById("boardCount"),
   paletteMeta: document.getElementById("paletteMeta"),
   paletteList: document.getElementById("paletteList"),
+  // Mobile sheet
+  sheetWidthInput: document.getElementById("sheetWidthInput"),
+  sheetWidthDisplay: document.getElementById("sheetWidthDisplay"),
+  controlPanel: document.getElementById("controlPanel"),
 };
 
 function currentSettings() {
@@ -51,8 +50,10 @@ function updateControlLabels() {
   const width = Number(elements.widthInput.value);
   const colors = Number(elements.colorInput.value);
   elements.widthValue.textContent = `${width} 颗`;
-  elements.heroWidth.textContent = `${width} 颗`;
   elements.colorValue.textContent = `${colors} 色`;
+  // Keep mobile sheet slider in sync
+  elements.sheetWidthInput.value = width;
+  elements.sheetWidthDisplay.textContent = `${width} 颗`;
   for (const button of elements.widthPresets.querySelectorAll("[data-width]")) {
     button.classList.toggle("is-active", Number(button.dataset.width) === width);
   }
@@ -302,11 +303,6 @@ function drawPatternSheet(canvas, pattern, showSymbols) {
   elements.sheetMeta.textContent = `${pattern.boardsWide} x ${pattern.boardsHigh} 块底板分区`;
 }
 
-function updateSummary(pattern) {
-  elements.patternSize.textContent = `${pattern.width} x ${pattern.height}`;
-  elements.beadCount.textContent = `${pattern.totalBeads} 颗`;
-  elements.boardCount.textContent = `${pattern.boardsWide} x ${pattern.boardsHigh}`;
-}
 
 function rebuildPattern() {
   if (!state.source) {
@@ -317,7 +313,6 @@ function rebuildPattern() {
   renderPalette(state.pattern);
   drawBeadPreview(elements.previewCanvas, state.pattern);
   drawPatternSheet(elements.sheetCanvas, state.pattern, elements.symbolToggle.checked);
-  updateSummary(state.pattern);
 }
 
 function setSource(source) {
@@ -327,9 +322,8 @@ function setSource(source) {
   rebuildPattern();
 }
 
-function readImageFile(file) {
+function readImageUrl(url) {
   return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
     const image = new Image();
     image.onload = () => {
       const canvas = document.createElement("canvas");
@@ -343,9 +337,13 @@ function readImageFile(file) {
         previewUrl: url,
       });
     };
-    image.onerror = () => reject(new Error("无法读取图片文件。"));
+    image.onerror = () => reject(new Error(`无法读取图片资源：${url}`));
     image.src = url;
   });
+}
+
+function readImageFile(file) {
+  return readImageUrl(URL.createObjectURL(file));
 }
 
 function drawRect(ctx, x, y, width, height, color) {
@@ -414,8 +412,16 @@ function attachEvents() {
     setSource(source);
   });
 
-  elements.loadDemoButton.addEventListener("click", () => {
-    setSource(createDemoSource());
+  // Mobile sheet toggle
+  document.getElementById("sheetToggle").addEventListener("click", () => {
+    elements.controlPanel.classList.toggle("is-expanded");
+  });
+
+  // Mobile sheet width slider — sync to main widthInput
+  elements.sheetWidthInput.addEventListener("input", () => {
+    elements.widthInput.value = elements.sheetWidthInput.value;
+    updateControlLabels();
+    rebuildPattern();
   });
 
   [elements.widthInput, elements.colorInput].forEach((input) => {
@@ -462,6 +468,15 @@ function attachEvents() {
   });
 }
 
+async function loadDefaultSource() {
+  try {
+    setSource(await readImageUrl("./sample.png"));
+  } catch (error) {
+    console.error("默认 sample.png 加载失败，回退到内置 demo。", error);
+    setSource(createDemoSource());
+  }
+}
+
 updateControlLabels();
 attachEvents();
-setSource(createDemoSource());
+loadDefaultSource();
