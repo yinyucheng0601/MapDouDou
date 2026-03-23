@@ -2,6 +2,10 @@
 
 一个纯前端本地 Web App，用来把图片自动转换成拼豆图纸。
 
+## 在线体验
+
+[GitHub Pages 预览](https://yinyucheng0601.github.io/MapDouDou/)
+
 ## 功能
 
 - 上传图片后自动生成拼豆图纸
