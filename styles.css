@@ -127,11 +127,7 @@ button:hover {
 .app-grid {
   display: grid;
   grid-template-columns: 360px minmax(0, 1fr);
-  grid-template-areas:
-    "upload workspace"
-    "controls workspace";
   gap: 22px;
-  align-items: start;
 }
 
 .control-panel,
@@ -140,18 +136,6 @@ button:hover {
 .palette-layout {
   display: grid;
   gap: 18px;
-}
-
-.upload-panel {
-  grid-area: upload;
-}
-
-.control-panel {
-  grid-area: controls;
-}
-
-.workspace {
-  grid-area: workspace;
 }
 
 .panel-card,
@@ -393,10 +377,6 @@ canvas {
 @media (max-width: 1180px) {
   .app-grid {
     grid-template-columns: 1fr;
-    grid-template-areas:
-      "upload"
-      "controls"
-      "workspace";
   }
 
   .palette-layout,
@@ -415,16 +395,10 @@ canvas {
   .hero {
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
-    padding-bottom: 18px;
   }
 
   .hero-stats {
     width: 100%;
     grid-template-columns: repeat(2, 1fr);
-  }
-
-  .hero-copy {
-    font-size: 0.96rem;
   }
 }
