@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>拼豆图纸生成器</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Bead Pattern Studio</p>
+          <h1>拼豆图纸生成器</h1>
+          <p class="hero-copy">
+            上传图案，自动裁切背景、压缩颜色、生成拼豆图纸，并把宽度控制在 24 到 96 颗豆子之间。
+          </p>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-card">
+            <span>目标宽度</span>
+            <strong id="heroWidth">40 颗</strong>
+          </div>
+          <div class="stat-card">
+            <span>推荐底板</span>
+            <strong>29 x 29</strong>
+          </div>
+        </div>
+      </header>
+
+      <main class="app-grid">
+        <aside class="control-panel">
+          <section class="panel-card">
+            <h2>输入</h2>
+            <label class="dropzone" for="imageInput">
+              <input id="imageInput" type="file" accept="image/*" />
+              <span>点击上传图片</span>
+              <small>支持 PNG、JPG、WebP。像素图或纯色插画效果最好。</small>
+            </label>
+            <div class="button-row">
+              <button id="loadDemoButton" type="button" class="ghost-button">加载示例魔法帽图</button>
+            </div>
+          </section>
+
+          <section class="panel-card">
+            <h2>图纸参数</h2>
+
+            <label class="field">
+              <div class="field-header">
+                <span>图纸宽度</span>
+                <strong id="widthValue">44 颗</strong>
+              </div>
+              <input id="widthInput" type="range" min="24" max="96" step="1" value="44" />
+            </label>
+
+            <div class="preset-row" id="widthPresets">
+              <button type="button" class="preset-button" data-width="29">29</button>
+              <button type="button" class="preset-button" data-width="40">40</button>
+              <button type="button" class="preset-button is-active" data-width="44">44</button>
+              <button type="button" class="preset-button" data-width="48">48</button>
+              <button type="button" class="preset-button" data-width="58">58</button>
+              <button type="button" class="preset-button" data-width="72">72</button>
+              <button type="button" class="preset-button" data-width="87">87</button>
+            </div>
+
+            <label class="field">
+              <div class="field-header">
+                <span>最大颜色数</span>
+                <strong id="colorValue">6 色</strong>
+              </div>
+              <input id="colorInput" type="range" min="3" max="12" step="1" value="6" />
+            </label>
+
+            <label class="field">
+              <div class="field-header">
+                <span>颜色策略</span>
+              </div>
+              <select id="paletteMode">
+                <option value="starter">内置拼豆色板近似</option>
+                <option value="auto">保留图片主色</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <div class="field-header">
+                <span>背景处理</span>
+              </div>
+              <select id="backgroundMode">
+                <option value="auto">自动识别边缘背景</option>
+                <option value="keep">保留整张图</option>
+              </select>
+            </label>
+
+            <label class="field inline-toggle">
+              <span>在图纸里显示符号</span>
+              <input id="symbolToggle" type="checkbox" checked />
+            </label>
+          </section>
+
+          <section class="panel-card">
+            <h2>导出</h2>
+            <div class="button-stack">
+              <button id="exportSheetButton" type="button">导出图纸 PNG</button>
+              <button id="exportPreviewButton" type="button" class="ghost-button">导出圆珠预览 PNG</button>
+              <button id="exportCsvButton" type="button" class="ghost-button">导出符号矩阵 CSV</button>
+            </div>
+            <p class="hint">
+              图纸 PNG 适合打印或放在透明底板下照着摆；CSV 方便继续二次处理。
+            </p>
+          </section>
+        </aside>
+
+        <section class="workspace">
+          <section class="summary-strip">
+            <article class="summary-card">
+              <span>成品尺寸</span>
+              <strong id="patternSize">-</strong>
+            </article>
+            <article class="summary-card">
+              <span>总豆数</span>
+              <strong id="beadCount">-</strong>
+            </article>
+            <article class="summary-card">
+              <span>底板估算</span>
+              <strong id="boardCount">-</strong>
+            </article>
+          </section>
+
+          <section class="preview-grid">
+            <article class="canvas-card">
+              <div class="card-header">
+                <h2>源图</h2>
+                <span id="sourceMeta">未加载</span>
+              </div>
+              <div class="source-frame">
+                <img id="sourcePreview" alt="source preview" />
+              </div>
+            </article>
+
+            <article class="canvas-card">
+              <div class="card-header">
+                <h2>圆珠预览</h2>
+                <span id="previewMeta">-</span>
+              </div>
+              <div class="canvas-frame">
+                <canvas id="previewCanvas"></canvas>
+              </div>
+            </article>
+
+            <article class="canvas-card wide-card">
+              <div class="card-header">
+                <h2>拼豆图纸</h2>
+                <span id="sheetMeta">-</span>
+              </div>
+              <div class="canvas-frame sheet-frame">
+                <canvas id="sheetCanvas"></canvas>
+              </div>
+            </article>
+          </section>
+
+          <section class="palette-layout">
+            <article class="panel-card palette-card">
+              <div class="card-header">
+                <h2>颜色与数量</h2>
+                <span id="paletteMeta">-</span>
+              </div>
+              <div id="paletteList" class="palette-list"></div>
+            </article>
+
+            <article class="panel-card notes-card">
+              <h2>使用建议</h2>
+              <ul class="notes-list">
+                <li>如果你的原图本身就是像素图，优先选“保留图片主色”。</li>
+                <li>如果你要更接近真实拼豆成品，优先选“内置拼豆色板近似”。</li>
+                <li>眼睛、描边这类黑色细节，自动背景识别会尽量保留内部黑块。</li>
+                <li>36 到 44 颗宽度通常适合做一张中等尺寸挂件或小摆件。</li>
+              </ul>
+            </article>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
